@@ -1,0 +1,48 @@
+.loginformdiv {
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.loginform {
+    width: 500px;
+    border: 1px solid rgba(0, 0, 0, 0.485);
+    box-shadow: 5px 5px 10px rgba(255, 177, 74, 0.209);
+    padding: 30px;
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+    border-radius: 5px;
+}
+
+.loginform label {
+    font-weight: bold;
+}
+
+.loginform input {
+    width: 75%;
+    padding: 8px;
+    border-radius: 3px;
+    background-color: rgba(251, 199, 130, 0.086);
+}
+
+.loginform button {
+    background-color: antiquewhite;
+    padding: 5px;
+    border-radius: 5px;
+    border: none;
+}
+
+.formfeilddiv {
+    display: flex;
+    justify-content: space-between;
+}
+
+.loginButton {
+    font-size: medium;
+    font-weight: bolder;
+    height: 40px;
+    width: 150px;
+    text-align: center;
+}

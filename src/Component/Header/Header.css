@@ -1,0 +1,26 @@
+* {
+    box-sizing: border-box;
+}
+
+.headerptn {
+    height: 50px;
+    position: sticky;
+    top: 0;
+    bottom: 0;
+    padding: 5px;
+    background: rgba(250, 235, 215, 0.452);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.headerlinks {
+    display: flex;
+    justify-content: start;
+    gap: 20px;
+}
+
+.headerlinks a {
+    list-style: none;
+    text-decoration: none;
+}

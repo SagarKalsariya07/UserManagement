@@ -1,0 +1,12 @@
+button {
+    padding: 14px;
+    background-color: rgba(255, 177, 74, 0.521);
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+body{
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: rgba(230, 252, 186, 0.137);
+}

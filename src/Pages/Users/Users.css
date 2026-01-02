@@ -1,0 +1,79 @@
+.tablecontainer{
+    width: 50%;
+    margin: auto;
+    padding: 15px;
+}
+.tablecontainer table {
+    width: 100%;
+    margin-top: 10px;
+    border-collapse: collapse;
+}
+.tablecontainer table thead tr th{
+    color: rgb(255, 177, 74);
+}
+.tablecontainer table tbody tr:nth-child(odd){
+    background-color: rgba(255, 177, 74, 0.048);
+}
+
+.tablecontainer table>thead>tr>th,
+.tablecontainer table>tbody>tr>td {
+    border: 1px solid gray;
+    padding: 8px;
+}
+
+.actionbtn{
+    display: flex;
+    gap: 5px;
+}
+
+.tableheader{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 10px;
+}
+
+.btn{
+    margin-left: 5px;
+}
+
+.userformcnt{
+    display: flex;
+    justify-content: center;
+}
+
+.userform{
+    width: 500px;
+    border: 1px solid rgba(128, 128, 128, 0.322);
+    padding: 15px;
+    border-radius: 5px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.userfeild{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.userfeild label{
+    font-weight: bold;
+    font-size: large;
+}
+
+.userfeild input,.userfeild select{
+    width: 80%;
+    padding: 5px;
+    background-color: rgba(251, 199, 130, 0.086);
+}
+
+.adduserbtn{
+    display: flex;
+    justify-content: space-between;
+}
+
+.searchdiv input{
+    padding: 7px;
+}
