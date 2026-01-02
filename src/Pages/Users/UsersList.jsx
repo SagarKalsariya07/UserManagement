@@ -22,10 +22,7 @@ const UsersList = () => {
         role: "",
         active: ""
     });
-    const [error, setError] = useState({
-        errorname: null,
-        errormsg: ""
-    });
+    const [error, setError] = useState();
     const [searchInput, setSearchInput] = useState('');
     const [editUserStatus, setEditUserStatus] = useState({
         isedit: false,
@@ -61,7 +58,7 @@ const UsersList = () => {
     }
 
     const handleUserChange = (e) => {
-        setError({ errorname: null, errormsg: "" })
+        setError()
         const { name, value } = e.target;
         setUserFormFeilds((prev) => ({
             ...prev,
@@ -78,7 +75,7 @@ const UsersList = () => {
     }
 
     const deleteUser = (selectedUser) => {
-        const confirmation = confirm("Are you sure?");
+        const confirmation = confirm("Are you sure? You want to delete this user!!");
         if (confirmation) {
             setUsers((allusers) => {
                 return allusers.filter((user) => user?.id !== selectedUser?.id)
@@ -103,29 +100,36 @@ const UsersList = () => {
 
     const addUser = (e) => {
         e.preventDefault();
-        if (userFormFeilds?.name === '') return setError({ errorname: "name", errormsg: "Name is Required" });
-        if (userFormFeilds?.email === '') return setError({ errorname: "email", errormsg: "Email is Required" });
-        if (userFormFeilds?.password === '') return setError({ errorname: "password", errormsg: "Password is Required" });
-        if (userFormFeilds?.role === '') return setError({ errorname: "role", errormsg: "Role is Required" });
-        if (userFormFeilds?.active === '') return setError({ errorname: "active", errormsg: "Active status is Required" });
+        let formerror = {};
+        if (userFormFeilds?.name === '') formerror["name"] = "name";
+        if (userFormFeilds?.email === '') formerror["email"] = "email";
+        if (userFormFeilds?.password === '') formerror["password"] = "password";
+        if (userFormFeilds?.role === '') formerror["role"] = "role"
+        if (userFormFeilds?.active === '') formerror["active"] = "active";
 
-        if (editUserStatus?.isedit) {
-            setUsers((allusers) => {
-                const updatedUsers = allusers?.map((user) => {
-                    if (user?.id === editUserStatus?.editUserId) {
-                        return { ...user, ...userFormFeilds };
-                    }
-                    return user;
-                });
-                return updatedUsers;
-            })
-            alert("User Updated Succefully");
+        if (Object.keys(formerror)?.length > 0) {
+            setError(formerror);
+            return;
         } else {
-            setUsers((prev) => [...prev, { id: prev.length + 1, ...userFormFeilds }]);
-            alert("User Added Succefully");
+            if (editUserStatus?.isedit) {
+                setUsers((allusers) => {
+                    const updatedUsers = allusers?.map((user) => {
+                        if (user?.id === editUserStatus?.editUserId) {
+                            return { ...user, ...userFormFeilds };
+                        }
+                        return user;
+                    });
+                    return updatedUsers;
+                })
+                alert("User Updated Succefully");
+            } else {
+                setUsers((prev) => [...prev, { id: prev.length + 1, ...userFormFeilds }]);
+                alert("User Added Succefully");
+            }
+            setError();
+            setUserFormFeilds({ name: "", email: "", password: "", role: "", active: "" })
+            setShowForm(false);
         }
-        setUserFormFeilds({ name: "", email: "", password: "", role: "", active: "" })
-        setShowForm(false);
     }
 
     return (
@@ -144,11 +148,10 @@ const UsersList = () => {
                                     value={userFormFeilds?.name}
                                     onChange={(e) => handleUserChange(e)}
                                     placeholder="Enter Name"
-
                                 />
                             </div>
-                            {(error?.errorname === "name") &&
-                                <div style={{ color: "red" }}>*{error?.errormsg}</div>
+                            {(error?.name) &&
+                                <div style={{ color: "red" }}>*Name is Required</div>
                             }
                             <div className="userfeild">
                                 <label>Email</label>
@@ -158,11 +161,10 @@ const UsersList = () => {
                                     value={userFormFeilds?.email}
                                     onChange={(e) => handleUserChange(e)}
                                     placeholder="Enter Email"
-
                                 />
                             </div>
-                            {(error?.errorname === "email") &&
-                                <div style={{ color: "red" }}>*{error?.errormsg}</div>
+                            {(error?.email) &&
+                                <div style={{ color: "red" }}>*Email is Required</div>
                             }
                             <div className="userfeild">
                                 <label>Password</label>
@@ -172,11 +174,10 @@ const UsersList = () => {
                                     value={userFormFeilds?.password}
                                     onChange={(e) => handleUserChange(e)}
                                     placeholder="Enter Password"
-
                                 />
                             </div>
-                            {(error?.errorname === "password") &&
-                                <div style={{ color: "red" }}>*{error?.errormsg}</div>
+                            {(error?.password) &&
+                                <div style={{ color: "red" }}>*Passsword is Required</div>
                             }
                             <div className="userfeild">
                                 <label>Role</label>
@@ -184,15 +185,14 @@ const UsersList = () => {
                                     name="role"
                                     value={userFormFeilds?.role}
                                     onChange={(e) => handleUserChange(e)}
-
                                 >
                                     <option value="" disabled>Select Role</option>
                                     <option value="admin">Admin</option>
                                     <option value="user">User</option>
                                 </select>
                             </div>
-                            {(error?.errorname === "role") &&
-                                <div style={{ color: "red" }}>*{error?.errormsg}</div>
+                            {(error?.role) &&
+                                <div style={{ color: "red" }}>*Role is Required</div>
                             }
                             <div className="userfeild">
                                 <label>Active</label>
@@ -200,21 +200,20 @@ const UsersList = () => {
                                     name="active"
                                     value={userFormFeilds?.active}
                                     onChange={(e) => handleUserChange(e)}
-
                                 >
                                     <option value="" disabled>Select Status</option>
                                     <option value="true">True</option>
                                     <option value="false">False</option>
                                 </select>
                             </div>
-                            {(error?.errorname === "active") &&
-                                <div style={{ color: "red" }}>*{error?.errormsg}</div>
+                            {(error?.active) &&
+                                <div style={{ color: "red" }}>*Active status is Required</div>
                             }
                             <div>
                                 <button type="submit">Submit</button>
                                 <button type="button" className="btn" onClick={() => {
                                     setUserFormFeilds({ name: "", email: "", password: "", role: "", active: "" });
-                                    setError({ errorname: null, errormsg: "" })
+                                    setError();
                                     setShowForm(false);
                                 }}
                                 >Cancel</button>

@@ -37,24 +37,33 @@ const LoginPage = () => {
     const handleLogin = (e) => {
         e.preventDefault();
 
-        const loginUser = allUsers?.find((user) => user?.email === loginData?.email && user?.password === loginData?.password);
+        const loginUser = allUsers?.find((user) => user?.email === loginData?.email);
 
         if (loginUser) {
-            if (loginUser?.role !== "superadmin" && !loginUser?.active) {
+            console.log("loginuser", loginUser);
+
+            if (loginUser?.password === loginData?.password) {
+                if (loginUser?.role !== "superadmin" && !loginUser?.active) {
+                    setError({
+                        isError: true,
+                        errorMsg: "You are inactive please contact to superadmin"
+                    });
+                } else {
+                    localStorage.setItem("currentuser", JSON.stringify(loginUser));
+                    setCurrentuser(loginUser);
+                    navigate('/homepage');
+                }
+            } else {
                 setError({
                     isError: true,
-                    errorMsg: "You are inactive please contact to superadmin"
-                })
-            } else {
-                localStorage.setItem("currentuser", JSON.stringify(loginUser));
-                setCurrentuser(loginUser);
-                navigate('/homepage')
+                    errorMsg: "Your password is incorrect!!"
+                });
             }
         } else {
             setError({
                 isError: true,
-                errorMsg: "Email or Password is wrong"
-            })
+                errorMsg: "This email doesn't exist!!"
+            });
         }
     }
 
