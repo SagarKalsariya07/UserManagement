@@ -40,8 +40,6 @@ const LoginPage = () => {
         const loginUser = allUsers?.find((user) => user?.email === loginData?.email);
 
         if (loginUser) {
-            console.log("loginuser", loginUser);
-
             if (loginUser?.password === loginData?.password) {
                 if (loginUser?.role !== "superadmin" && !loginUser?.active) {
                     setError({
