@@ -5,7 +5,8 @@ import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../../Context/AuthProvider";
 
 const LoginPage = () => {
-    const { SetCurrentuser } = useContext(AuthContext);
+    const { setCurrentuser } = useContext(AuthContext);
+    const [allUsers, setAllUsers] = useState([]);
     const [loginData, setLoginData] = useState({
         email: "",
         password: ""
@@ -16,6 +17,10 @@ const LoginPage = () => {
     });
 
     const navigate = useNavigate();
+
+    useEffect(() => {
+        setAllUsers(JSON.parse(localStorage.getItem("users")) || Users)
+    }, []);
 
     const handleChange = (e) => {
         setError({
@@ -32,7 +37,7 @@ const LoginPage = () => {
     const handleLogin = (e) => {
         e.preventDefault();
 
-        const loginUser = Users?.find((user) => user?.email === loginData?.email && user?.password === loginData?.password);
+        const loginUser = allUsers?.find((user) => user?.email === loginData?.email && user?.password === loginData?.password);
 
         if (loginUser) {
             if (loginUser?.role !== "superadmin" && !loginUser?.active) {
@@ -42,7 +47,7 @@ const LoginPage = () => {
                 })
             } else {
                 localStorage.setItem("currentuser", JSON.stringify(loginUser));
-                SetCurrentuser(loginUser);
+                setCurrentuser(loginUser);
                 navigate('/homepage')
             }
         } else {

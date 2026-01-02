@@ -1,4 +1,4 @@
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import Users from "../../Users";
 import Header from "../../Component/Header/Header";
 import './Users.css'
@@ -8,7 +8,8 @@ import { useNavigate } from "react-router-dom";
 const UsersList = () => {
     const { currentuser } = useContext(AuthContext);
     const navigate = useNavigate()
-    const [users, setUsers] = useState(Users);
+    const [users, setUsers] = useState(JSON.parse(localStorage.getItem("users")) || Users);
+    const [filteredUsers, setFilteredUsers] = useState(JSON.parse(localStorage.getItem("users")) || Users)
     const [filtertype, setFiltertype] = useState({
         role: "",
         active: ""
@@ -31,12 +32,17 @@ const UsersList = () => {
         editUserId: ''
     })
 
+    useEffect(() => {
+        localStorage.setItem("users", JSON.stringify(users));
+        setFilteredUsers(users);
+    }, [users]);
+
     const handleFilterChange = (e) => {
         const { name, value } = e.target;
         setFiltertype((prev) => ({
             ...prev,
             [name]: value
-        }))
+        }));
     }
 
     const applyFilter = () => {
@@ -44,64 +50,37 @@ const UsersList = () => {
         const selectedStatus = filtertype?.active;
 
         if (selectedRole || selectedStatus) {
-            const updatedUsers = Users?.filter((user) => {
+            const updatedUsers = users?.filter((user) => {
                 if ((selectedRole && !selectedStatus) || (selectedStatus === "both" && selectedRole !== "all")) return user?.role === selectedRole;
                 if ((selectedStatus && !selectedRole) || (selectedRole === "all" && selectedStatus !== "both")) return (user?.active ? "true" : "false") === selectedStatus;
                 if (selectedRole === "all" && selectedStatus === "both") return user;
                 if (selectedRole && selectedStatus) return user?.role === selectedRole && (user?.active ? "true" : "false") === selectedStatus;
             });
-            setUsers(updatedUsers);
+            setFilteredUsers(updatedUsers);
         }
     }
 
-    const handleuserChange = (e) => {
+    const handleUserChange = (e) => {
         setError({ errorname: null, errormsg: "" })
         const { name, value } = e.target;
         setUserFormFeilds((prev) => ({
             ...prev,
             [name]: value
-        }))
+        }));
     }
 
-    const addUser = (e) => {
-        e.preventDefault();
-        if (userFormFeilds?.name === '') return setError({ errorname: "name", errormsg: "Name is Required" });
-        if (userFormFeilds?.email === '') return setError({ errorname: "email", errormsg: "Email is Required" });
-        if (userFormFeilds?.password === '') return setError({ errorname: "password", errormsg: "Password is Required" });
-        if (userFormFeilds?.role === '') return setError({ errorname: "role", errormsg: "Role is Required" });
-        if (userFormFeilds?.active === '') return setError({ errorname: "active", errormsg: "Active status is Required" });
-
-        if (editUserStatus?.isedit) {
-            setUsers((allusers) => {
-                const updatedUsers = allusers?.map((user) => {
-                    if (user?.id === editUserStatus?.editUserId) {
-                        return { ...user, ...userFormFeilds }
-                    }
-                    return user
-                });
-                return updatedUsers;
-            })
-            alert("User Updated Succefully");
-        } else {
-            setUsers((prev) => [...prev, { id: prev.length + 1, ...userFormFeilds }]);
-            alert("User Added Succefully");
-        }
-        setUserFormFeilds({ name: "", email: "", password: "", role: "", active: "" })
-        setShowForm(false);
-    }
-
-    const Searchdata = () => {
-        const updatedUsers = Users?.filter((user) => {
+    const searchData = () => {
+        const updatedUsers = users?.filter((user) => {
             if (searchInput === '') return Users;
             if (user?.name.includes(searchInput) || user?.email.includes(searchInput) || user?.role?.includes(searchInput)) return user;
-        })
-        setUsers(updatedUsers);
+        });
+        setFilteredUsers(updatedUsers);
     }
 
     const deleteUser = (selectedUser) => {
         setUsers((allusers) => {
             return allusers.filter((user) => user?.id !== selectedUser?.id)
-        })
+        });
     }
 
     const editUser = (selectedUser) => {
@@ -116,7 +95,34 @@ const UsersList = () => {
             password: selectedUser?.password,
             role: selectedUser?.role,
             active: selectedUser?.active
-        })
+        });
+    }
+
+    const addUser = (e) => {
+        e.preventDefault();
+        if (userFormFeilds?.name === '') return setError({ errorname: "name", errormsg: "Name is Required" });
+        if (userFormFeilds?.email === '') return setError({ errorname: "email", errormsg: "Email is Required" });
+        if (userFormFeilds?.password === '') return setError({ errorname: "password", errormsg: "Password is Required" });
+        if (userFormFeilds?.role === '') return setError({ errorname: "role", errormsg: "Role is Required" });
+        if (userFormFeilds?.active === '') return setError({ errorname: "active", errormsg: "Active status is Required" });
+
+        if (editUserStatus?.isedit) {
+            setUsers((allusers) => {
+                const updatedUsers = allusers?.map((user) => {
+                    if (user?.id === editUserStatus?.editUserId) {
+                        return { ...user, ...userFormFeilds };
+                    }
+                    return user;
+                });
+                return updatedUsers;
+            })
+            alert("User Updated Succefully");
+        } else {
+            setUsers((prev) => [...prev, { id: prev.length + 1, ...userFormFeilds }]);
+            alert("User Added Succefully");
+        }
+        setUserFormFeilds({ name: "", email: "", password: "", role: "", active: "" })
+        setShowForm(false);
     }
 
     return (
@@ -133,7 +139,7 @@ const UsersList = () => {
                                     type="text"
                                     name="name"
                                     value={userFormFeilds?.name}
-                                    onChange={(e) => handleuserChange(e)}
+                                    onChange={(e) => handleUserChange(e)}
                                     placeholder="Enter Name"
 
                                 />
@@ -147,7 +153,7 @@ const UsersList = () => {
                                     type="email"
                                     name="email"
                                     value={userFormFeilds?.email}
-                                    onChange={(e) => handleuserChange(e)}
+                                    onChange={(e) => handleUserChange(e)}
                                     placeholder="Enter Email"
 
                                 />
@@ -161,7 +167,7 @@ const UsersList = () => {
                                     type="password"
                                     name="password"
                                     value={userFormFeilds?.password}
-                                    onChange={(e) => handleuserChange(e)}
+                                    onChange={(e) => handleUserChange(e)}
                                     placeholder="Enter Password"
 
                                 />
@@ -174,7 +180,7 @@ const UsersList = () => {
                                 <select
                                     name="role"
                                     value={userFormFeilds?.role}
-                                    onChange={(e) => handleuserChange(e)}
+                                    onChange={(e) => handleUserChange(e)}
 
                                 >
                                     <option value="" disabled>Select Role</option>
@@ -190,7 +196,7 @@ const UsersList = () => {
                                 <select
                                     name="active"
                                     value={userFormFeilds?.active}
-                                    onChange={(e) => handleuserChange(e)}
+                                    onChange={(e) => handleUserChange(e)}
 
                                 >
                                     <option value="" disabled>Select Status</option>
@@ -245,7 +251,7 @@ const UsersList = () => {
                         </div>
                         <div className="searchdiv">
                             <input type="text" placeholder="Enter detail to search" onChange={(e) => setSearchInput(e.target.value)} />
-                            <button className="btn" onClick={() => Searchdata()}>Search</button>
+                            <button className="btn" onClick={() => searchData()}>Search</button>
                         </div>
                     </div>
                     <div>
@@ -261,8 +267,8 @@ const UsersList = () => {
                                 </tr>
                             </thead>
                             <tbody>
-                                {users.length > 0 ?
-                                    users?.map((user, index) => (
+                                {filteredUsers.length > 0 ?
+                                    filteredUsers?.map((user, index) => (
                                         <tr key={index}>
                                             <td>{index + 1}</td>
                                             <td>{user?.name}</td>
@@ -271,7 +277,7 @@ const UsersList = () => {
                                             <td>{user?.active ? "true" : "false"} {user?.id === currentuser?.id && <span>(current)</span>}</td>
                                             {currentuser?.role === "superadmin" &&
                                                 <td>
-                                                    {currentuser?.id !== user?.id &&
+                                                    {(currentuser?.id !== user?.id) &&
                                                         <div className="actionbtn">
                                                             <button onClick={() => editUser(user)}>Edit User</button>
                                                             <button onClick={() => deleteUser(user)}>Delete User</button>

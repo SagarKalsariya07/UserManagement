@@ -5,10 +5,10 @@ import { useContext } from 'react';
 
 const Header = () => {
     const navigate = useNavigate();
-    const { SetCurrentuser } = useContext(AuthContext);
+    const { setCurrentuser } = useContext(AuthContext);
 
     const handleLogout = () => {
-        SetCurrentuser([]);
+        setCurrentuser([]);
         localStorage.removeItem("currentuser");
         navigate('/');
     }

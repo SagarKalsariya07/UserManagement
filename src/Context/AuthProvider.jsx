@@ -4,9 +4,9 @@ export const AuthContext = createContext();
 
 
 const AuthProvider = ({ children }) => {
-    const [currentuser, SetCurrentuser] = useState(JSON.parse(localStorage.getItem("currentuser")) || {})
+    const [currentuser, setCurrentuser] = useState(JSON.parse(localStorage.getItem("currentuser")) || {})
 
-    const providedValue = { currentuser, SetCurrentuser }
+    const providedValue = { currentuser, setCurrentuser }
 
     return (
         <AuthContext.Provider value={providedValue}>
