@@ -34,29 +34,22 @@ const LoginPage = () => {
 
         const loginUser = Users?.find((user) => user?.email === loginData?.email && user?.password === loginData?.password);
 
-        let verifiedUser = false;
         if (loginUser) {
-            if (loginUser?.role === "superadmin") {
-                verifiedUser = true;
-            } else if (loginUser?.active === "true") {
-                verifiedUser = true;
-            } else {
+            if (loginUser?.role !== "superadmin" && loginUser?.active !== "true") {
                 setError({
                     isError: true,
                     errorMsg: "You are inactive please contact to superadmin"
                 })
+            } else {
+                localStorage.setItem("currentuser", JSON.stringify(loginUser));
+                SetCurrentuser(loginUser);
+                navigate('/homepage')
             }
         } else {
             setError({
                 isError: true,
                 errorMsg: "Email or Password is wrong"
             })
-        }
-
-        if (verifiedUser) {
-            localStorage.setItem("currentuser", JSON.stringify(loginUser));
-            SetCurrentuser(loginUser);
-            navigate('/homepage');
         }
     }
 
