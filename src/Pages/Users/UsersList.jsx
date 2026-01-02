@@ -78,9 +78,12 @@ const UsersList = () => {
     }
 
     const deleteUser = (selectedUser) => {
-        setUsers((allusers) => {
-            return allusers.filter((user) => user?.id !== selectedUser?.id)
-        });
+        const confirmation = confirm("Are you sure?");
+        if (confirmation) {
+            setUsers((allusers) => {
+                return allusers.filter((user) => user?.id !== selectedUser?.id)
+            });
+        }
     }
 
     const editUser = (selectedUser) => {
@@ -277,7 +280,7 @@ const UsersList = () => {
                                             <td>{user?.active ? "true" : "false"} {user?.id === currentuser?.id && <span>(current)</span>}</td>
                                             {currentuser?.role === "superadmin" &&
                                                 <td>
-                                                    {(currentuser?.id !== user?.id) &&
+                                                    {((user?.role !== "superadmin") && (currentuser?.id !== user?.id)) &&
                                                         <div className="actionbtn">
                                                             <button onClick={() => editUser(user)}>Edit User</button>
                                                             <button onClick={() => deleteUser(user)}>Delete User</button>
