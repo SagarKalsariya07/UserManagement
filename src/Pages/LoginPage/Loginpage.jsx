@@ -6,7 +6,7 @@ import { AuthContext } from "../../Context/AuthProvider";
 
 const LoginPage = () => {
     const { setCurrentuser } = useContext(AuthContext);
-    const [allUsers, setAllUsers] = useState((localStorage.getItem("users")) || Users);
+    const [allUsers, setAllUsers] = useState(JSON.parse(localStorage.getItem("users")) || Users);
     const [loginData, setLoginData] = useState({
         email: "",
         password: ""
