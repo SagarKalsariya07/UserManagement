@@ -35,7 +35,7 @@ const LoginPage = () => {
         const loginUser = Users?.find((user) => user?.email === loginData?.email && user?.password === loginData?.password);
 
         if (loginUser) {
-            if (loginUser?.role !== "superadmin" && loginUser?.active !== "true") {
+            if (loginUser?.role !== "superadmin" && !loginUser?.active) {
                 setError({
                     isError: true,
                     errorMsg: "You are inactive please contact to superadmin"

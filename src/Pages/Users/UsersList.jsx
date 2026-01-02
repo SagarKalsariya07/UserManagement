@@ -46,13 +46,12 @@ const UsersList = () => {
         if (selectedRole || selectedStatus) {
             const updatedUsers = Users?.filter((user) => {
                 if ((selectedRole && !selectedStatus) || (selectedStatus === "both" && selectedRole !== "all")) return user?.role === selectedRole;
-                if ((selectedStatus && !selectedRole) || (selectedRole === "all" && selectedStatus !== "both")) return user?.active === selectedStatus;
+                if ((selectedStatus && !selectedRole) || (selectedRole === "all" && selectedStatus !== "both")) return (user?.active ? "true" : "false") === selectedStatus;
                 if (selectedRole === "all" && selectedStatus === "both") return user;
-                if (selectedRole && selectedStatus) return user?.role === selectedRole && user?.active === selectedStatus;
+                if (selectedRole && selectedStatus) return user?.role === selectedRole && (user?.active ? "true" : "false") === selectedStatus;
             });
             setUsers(updatedUsers);
         }
-
     }
 
     const handleuserChange = (e) => {
@@ -269,7 +268,7 @@ const UsersList = () => {
                                             <td>{user?.name}</td>
                                             <td>{user?.email}</td>
                                             <td>{user?.role}</td>
-                                            <td>{user?.active} {user?.id === currentuser?.id && <span>(current)</span>}</td>
+                                            <td>{user?.active ? "true" : "false"} {user?.id === currentuser?.id && <span>(current)</span>}</td>
                                             {currentuser?.role === "superadmin" &&
                                                 <td>
                                                     {currentuser?.id !== user?.id &&
