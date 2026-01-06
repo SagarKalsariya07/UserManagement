@@ -20,14 +20,11 @@ const UsersList = () => {
         email: "",
         password: "",
         role: "",
-        active: ""
+        active: true
     });
     const [error, setError] = useState();
     const [searchInput, setSearchInput] = useState('');
-    const [editUserStatus, setEditUserStatus] = useState({
-        isedit: false,
-        editUserId: ''
-    })
+    const [editUserId, setEditUserId] = useState(null);
 
     useEffect(() => {
         localStorage.setItem("users", JSON.stringify(users));
@@ -48,27 +45,18 @@ const UsersList = () => {
 
         if (selectedRole || selectedStatus) {
             const updatedUsers = users?.filter((user) => {
+                if ((selectedRole === "all" && selectedStatus === "both") || (selectedStatus === "both" && !selectedRole) || (selectedRole === "all" && !selectedStatus)) return user;
                 if ((selectedRole && !selectedStatus) || (selectedStatus === "both" && selectedRole !== "all")) return user?.role === selectedRole;
                 if ((selectedStatus && !selectedRole) || (selectedRole === "all" && selectedStatus !== "both")) return (user?.active ? "true" : "false") === selectedStatus;
-                if (selectedRole === "all" && selectedStatus === "both") return user;
                 if (selectedRole && selectedStatus) return user?.role === selectedRole && (user?.active ? "true" : "false") === selectedStatus;
             });
             setFilteredUsers(updatedUsers);
         }
     }
 
-    const handleUserChange = (e) => {
-        setError()
-        const { name, value } = e.target;
-        setUserFormFeilds((prev) => ({
-            ...prev,
-            [name]: value
-        }));
-    }
-
-    const searchData = () => {
+    const searchUser = () => {
         const updatedUsers = users?.filter((user) => {
-            if (searchInput === '') return Users;
+            if (searchInput === '') return user;
             if (user?.name.includes(searchInput) || user?.email.includes(searchInput) || user?.role?.includes(searchInput)) return user;
         });
         setFilteredUsers(updatedUsers);
@@ -84,10 +72,7 @@ const UsersList = () => {
     }
 
     const editUser = (selectedUser) => {
-        setEditUserStatus({
-            isedit: true,
-            editUserId: selectedUser?.id
-        });
+        setEditUserId(selectedUser?.id);
         setShowForm(true);
         setUserFormFeilds({
             name: selectedUser?.name,
@@ -98,38 +83,48 @@ const UsersList = () => {
         });
     }
 
+    const handleUserChange = (e) => {
+        setError();
+        const { name, value } = e.target;
+        let finalvalue = value;
+        if (name === "active") finalvalue = value === "true";
+        setUserFormFeilds((prev) => ({
+            ...prev,
+            [name]: finalvalue
+        }));
+    }
+
+    const handleError = (formFeilds) => {
+        let formerror = {};
+        Object.keys(formFeilds).forEach((key) => { if (formFeilds[key] === '') { formerror[key] = `${key} is Required` } });
+        return formerror;
+    }
+
     const addUser = (e) => {
         e.preventDefault();
-        let formerror = {};
-        if (userFormFeilds?.name === '') formerror["name"] = "name";
-        if (userFormFeilds?.email === '') formerror["email"] = "email";
-        if (userFormFeilds?.password === '') formerror["password"] = "password";
-        if (userFormFeilds?.role === '') formerror["role"] = "role"
-        if (userFormFeilds?.active === '') formerror["active"] = "active";
+        const formerror = handleError(userFormFeilds);
 
         if (Object.keys(formerror)?.length > 0) {
             setError(formerror);
             return;
+        } else if (editUserId) {
+            setUsers((allusers) => {
+                const updatedUsers = allusers?.map((user) => {
+                    if (user?.id === editUserId) return { ...user, ...userFormFeilds };
+                    return user;
+                });
+                return updatedUsers;
+            })
+            alert("User Updated Succefully");
+            setEditUserId(null);
+            setUserFormFeilds({ name: "", email: "", password: "", role: "", active: true });
         } else {
-            if (editUserStatus?.isedit) {
-                setUsers((allusers) => {
-                    const updatedUsers = allusers?.map((user) => {
-                        if (user?.id === editUserStatus?.editUserId) {
-                            return { ...user, ...userFormFeilds };
-                        }
-                        return user;
-                    });
-                    return updatedUsers;
-                })
-                alert("User Updated Succefully");
-            } else {
-                setUsers((prev) => [...prev, { id: prev.length + 1, ...userFormFeilds }]);
-                alert("User Added Succefully");
-            }
-            setError();
-            setUserFormFeilds({ name: "", email: "", password: "", role: "", active: "" })
-            setShowForm(false);
+            setUsers((prev) => [...prev, { id: prev[prev.length - 1]?.id + 1, ...userFormFeilds }]);
+            alert("User Added Succefully");
         }
+        setError();
+        setUserFormFeilds({ name: "", email: "", password: "", role: "", active: true });
+        setShowForm(false);
     }
 
     return (
@@ -151,7 +146,7 @@ const UsersList = () => {
                                 />
                             </div>
                             {(error?.name) &&
-                                <div style={{ color: "red" }}>*Name is Required</div>
+                                <div style={{ color: "red" }}>*{error?.name}</div>
                             }
                             <div className="userfeild">
                                 <label>Email</label>
@@ -164,7 +159,7 @@ const UsersList = () => {
                                 />
                             </div>
                             {(error?.email) &&
-                                <div style={{ color: "red" }}>*Email is Required</div>
+                                <div style={{ color: "red" }}>*{error?.email}</div>
                             }
                             <div className="userfeild">
                                 <label>Password</label>
@@ -177,7 +172,7 @@ const UsersList = () => {
                                 />
                             </div>
                             {(error?.password) &&
-                                <div style={{ color: "red" }}>*Passsword is Required</div>
+                                <div style={{ color: "red" }}>*{error?.password}</div>
                             }
                             <div className="userfeild">
                                 <label>Role</label>
@@ -187,12 +182,12 @@ const UsersList = () => {
                                     onChange={(e) => handleUserChange(e)}
                                 >
                                     <option value="" disabled>Select Role</option>
-                                    <option value="admin">Admin</option>
+                                    {currentuser?.role === "superadmin" && <option value="admin">Admin</option>}
                                     <option value="user">User</option>
                                 </select>
                             </div>
                             {(error?.role) &&
-                                <div style={{ color: "red" }}>*Role is Required</div>
+                                <div style={{ color: "red" }}>*{error?.role}</div>
                             }
                             <div className="userfeild">
                                 <label>Active</label>
@@ -201,18 +196,17 @@ const UsersList = () => {
                                     value={userFormFeilds?.active}
                                     onChange={(e) => handleUserChange(e)}
                                 >
-                                    <option value="" disabled>Select Status</option>
                                     <option value="true">True</option>
                                     <option value="false">False</option>
                                 </select>
                             </div>
                             {(error?.active) &&
-                                <div style={{ color: "red" }}>*Active status is Required</div>
+                                <div style={{ color: "red" }}>*{error?.active}</div>
                             }
                             <div>
                                 <button type="submit">Submit</button>
                                 <button type="button" className="btn" onClick={() => {
-                                    setUserFormFeilds({ name: "", email: "", password: "", role: "", active: "" });
+                                    setUserFormFeilds({ name: "", email: "", password: "", role: "", active: true });
                                     setError();
                                     setShowForm(false);
                                 }}
@@ -253,7 +247,7 @@ const UsersList = () => {
                         </div>
                         <div className="searchdiv">
                             <input type="text" placeholder="Enter detail to search" onChange={(e) => setSearchInput(e.target.value)} />
-                            <button className="btn" onClick={() => searchData()}>Search</button>
+                            <button className="btn" onClick={() => searchUser()}>Search</button>
                         </div>
                     </div>
                     <div>
@@ -270,16 +264,16 @@ const UsersList = () => {
                             </thead>
                             <tbody>
                                 {filteredUsers.length > 0 ?
-                                    filteredUsers?.map((user, index) => (
+                                    filteredUsers?.filter((x) => x?.id !== currentuser?.id).map((user, index) => (
                                         <tr key={index}>
                                             <td>{index + 1}</td>
                                             <td>{user?.name}</td>
                                             <td>{user?.email}</td>
                                             <td>{user?.role}</td>
-                                            <td>{user?.active ? "true" : "false"} {user?.id === currentuser?.id && <span>(current)</span>}</td>
+                                            <td>{user?.active ? "true" : "false"}</td>
                                             {currentuser?.role === "superadmin" &&
                                                 <td>
-                                                    {((user?.role !== "superadmin") && (currentuser?.id !== user?.id)) &&
+                                                    {user?.role !== "superadmin" &&
                                                         <div className="actionbtn">
                                                             <button onClick={() => editUser(user)}>Edit User</button>
                                                             <button onClick={() => deleteUser(user)}>Delete User</button>
